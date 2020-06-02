@@ -30,13 +30,13 @@ public class AiFaceTemplate implements InitializingBean {
             required = false
     )
     AipFace aipFace;
-    private final String IMAGE_TYPE = "BASE64";
-    private static final HashMap<String, String> ADD_USER_OPTIONS = new HashMap(4);
-    private static final HashMap<String, String> SEARCH_USER_OPTIONS = new HashMap(3);
-    private static final HashMap<String, String> CHECK_USER_OPTIONS = new HashMap(4);
+    protected final String IMAGE_TYPE = "BASE64";
+    protected  final HashMap<String, String> ADD_USER_OPTIONS = new HashMap(4);
+    protected  final HashMap<String, String> SEARCH_USER_OPTIONS = new HashMap(3);
+    protected  final HashMap<String, String> CHECK_USER_OPTIONS = new HashMap(4);
 
 
-    public String compareWithTwoImg(String img1, String img2) {
+    protected String compareWithTwoImg(String img1, String img2) {
         MatchRequest req1 = new MatchRequest(img1, "BASE64");
         MatchRequest req2 = new MatchRequest(img2, "BASE64");
         ArrayList<MatchRequest> requests = new ArrayList();
@@ -46,21 +46,21 @@ public class AiFaceTemplate implements InitializingBean {
         return res.toString(2);
     }
 
-    public String checkFace(String base64FaceImg) {
+    protected String checkFace(String base64FaceImg) {
         HashMap<String, String> options = new HashMap();
         options.put("face_field", "age");
         options.put("liveness_control", "LOW");
         return this.aipFace.detect(base64FaceImg, "BASE64", options).toString(2);
     }
 
-    private String stream2Base64(MultipartFile file) throws Exception {
+    protected String stream2Base64(MultipartFile file) throws Exception {
         InputStream inputStream = file.getInputStream();
         byte[] strByte = new byte[inputStream.available()];
         inputStream.read(strByte);
         return Base64Encoder.encode(strByte);
     }
 
-    public static String[] stream2Base64(MultipartFile file, MultipartFile file2) throws Exception {
+    protected  String[] stream2Base64(MultipartFile file, MultipartFile file2) throws Exception {
         InputStream inputStream1 = file.getInputStream();
         InputStream inputStream2 = file2.getInputStream();
         byte[] strByte1 = new byte[inputStream1.available()];
@@ -71,7 +71,7 @@ public class AiFaceTemplate implements InitializingBean {
         return res;
     }
 
-    private void checkAip() throws ApiException {
+    protected void checkAip() throws ApiException {
         if (this.aipFace == null) {
             throw new ApiException(ResultEnum.NOT_INITIALIZING);
         }
@@ -79,10 +79,11 @@ public class AiFaceTemplate implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        init();
         log.info("人脸操作工具类初始化结束,注入人脸客户端信息：{}", this.aipFace);
     }
 
-    static {
+    public void init(){
         SEARCH_USER_OPTIONS.put("quality_control", "LOW");
         SEARCH_USER_OPTIONS.put("liveness_control", "NONE");
         SEARCH_USER_OPTIONS.put("match_threshold", "85");
@@ -93,4 +94,6 @@ public class AiFaceTemplate implements InitializingBean {
         CHECK_USER_OPTIONS.put("liveness_control", "NONE");
         CHECK_USER_OPTIONS.put("match_threshold", "85");
     }
+
+
 }
