@@ -6,10 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.AnnotationAttributes;
@@ -17,7 +17,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.StringUtils;
 import store.sophi.xjr.annotations.EnableAiFace;
-import store.sophi.xjr.model.AiFaceModel;
+import store.sophi.xjr.proxy.FaceTemplateProxyBean;
 import store.sophi.xjr.util.AiFaceTemplate;
 
 /**
@@ -50,26 +50,18 @@ public class AnnotationFaceRegistry implements ImportBeanDefinitionRegistrar, En
         }
         BeanDefinition beanDefinition=BeanDefinitionBuilder.genericBeanDefinition(AipFace.class).getBeanDefinition();
         beanDefinition.setScope("singleton");
-        try {
-            AiFaceModel faceModel=beanFactory.getBean(AiFaceModel.class);
-            beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(faceModel.getAppId());
-            beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(faceModel.getApiKey());
-            beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(faceModel.getSecretKey());
-        }catch (NoSuchBeanDefinitionException ex){
-            beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(appId);
-            beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(apiKey);
-            beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(secretKey);
-        }
+        beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(appId);
+        beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(apiKey);
+        beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(secretKey);
         beanDefinitionRegistry.registerBeanDefinition("aipFace",beanDefinition);
         Class<? extends AiFaceTemplate> templateClass=annotationAttributes.getClass("executor");
         BeanDefinitionBuilder templateBuilder=BeanDefinitionBuilder.genericBeanDefinition(templateClass);
-        templateBuilder.setScope("singleton");
-        BeanDefinition templatesDefinition=templateBuilder.getBeanDefinition();
-        templatesDefinition.setDependsOn("aipFace");
-        beanDefinitionRegistry.registerBeanDefinition("aiFaceTemplate",templatesDefinition);
+        GenericBeanDefinition genericBeanDefinition= (GenericBeanDefinition) templateBuilder.getBeanDefinition();
+        genericBeanDefinition.setDependsOn("aipFace");
+        genericBeanDefinition.setBeanClass(FaceTemplateProxyBean.class);
+        genericBeanDefinition.getConstructorArgumentValues().addGenericArgumentValue(templateClass.getName());
+        beanDefinitionRegistry.registerBeanDefinition("aiFaceTemplate",genericBeanDefinition);
         log.info("人脸识别组件初始化完毕");
-
-
     }
 
     @Override

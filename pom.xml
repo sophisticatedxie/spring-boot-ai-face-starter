@@ -10,7 +10,7 @@
     </parent>
     <groupId>store.sophi.xjr</groupId>
     <artifactId>spring-boot-ai-face-starter</artifactId>
-    <version>1.0.0.RELEASE</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,15 +22,22 @@
     </properties>
     <distributionManagement>
         <snapshotRepository>
-            <id>oss</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <id>${repository.id}</id>
+            <url>${repository.snapshot.url}</url>
         </snapshotRepository>
         <repository>
-            <id>oss</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>${repository.id}</id>
+            <url>${repository.release.url}}</url>
         </repository>
     </distributionManagement>
     <dependencies>
+        <!--阿里巴巴json-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.38</version>
+            <optional>true</optional>
+        </dependency>
         <!-- 自动装配-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

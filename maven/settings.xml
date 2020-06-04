@@ -114,6 +114,11 @@ under the License.
         <username>xiejiarong</username>
         <password>Xjr19970305%</password>
       </server>
+      <server>
+          <id>local</id>
+          <username>admin</username>
+          <password>xjr19970305</password>
+      </server>
     <!-- server
      | Specifies the authentication information to use when connecting to a particular server, identified by
      | a unique name within the system (referred to by the 'id' attribute below).
@@ -264,8 +269,21 @@ under the License.
         <properties>
           <gpg.executable>gpg</gpg.executable>
           <gpg.passphrase>xjr19970305</gpg.passphrase>
+            <repository.id>oss</repository.id>
+            <repository.name>maven central Repository</repository.name>
+            <repository.snapshot.url>https://oss.sonatype.org/content/repositories/snapshots/</repository.snapshot.url>
+            <repository.release.url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</repository.release.url>
         </properties>
     </profile>
+      <profile>
+          <id>local</id>
+          <properties>
+              <repository.id>local</repository.id>
+              <repository.name>local Repository</repository.name>
+              <repository.snapshot.url>http://www.sophi.store:8081/repository/maven-snapshots/</repository.snapshot.url>
+              <repository.release.url>http://www.sophi.store:8081/repository/maven-releases/</repository.release.url>
+          </properties>
+      </profile>
   </profiles>
 
   <!-- activeProfiles

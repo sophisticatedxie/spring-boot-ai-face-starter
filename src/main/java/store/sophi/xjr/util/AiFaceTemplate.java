@@ -3,6 +3,8 @@ package store.sophi.xjr.util;
 import cn.hutool.core.codec.Base64Encoder;
 import com.baidu.aip.face.AipFace;
 import com.baidu.aip.face.MatchRequest;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.InitializingBean;
@@ -13,7 +15,10 @@ import store.sophi.xjr.exception.ApiException;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @program: spring-boot-ai-face-starter
@@ -22,6 +27,8 @@ import java.util.HashMap;
  * @create: 2020-05-31 01:07
  **/
 @Slf4j
+@Getter
+@Setter
 public class AiFaceTemplate implements InitializingBean {
 
 
@@ -29,14 +36,26 @@ public class AiFaceTemplate implements InitializingBean {
     @Autowired(
             required = false
     )
-    AipFace aipFace;
+    protected AipFace aipFace;
+
     protected final String IMAGE_TYPE = "BASE64";
-    protected  final HashMap<String, String> ADD_USER_OPTIONS = new HashMap(4);
-    protected  final HashMap<String, String> SEARCH_USER_OPTIONS = new HashMap(3);
-    protected  final HashMap<String, String> CHECK_USER_OPTIONS = new HashMap(4);
+
+    protected  final HashMap<String, String> ADD_USER_OPTIONS = new HashMap<String, String>(4);
+
+    protected  final HashMap<String, String> SEARCH_USER_OPTIONS = new HashMap<String, String>(3);
+
+    protected  final HashMap<String, String> CHECK_USER_OPTIONS = new HashMap<String, String>(4);
 
 
-    protected String compareWithTwoImg(String img1, String img2) {
+    /**
+     *
+     * 人脸对比，返回相似度
+     * @param img1: base64
+     * @param img2: base64
+     * @author xiejiarong
+     * @date 2020年06月03日 9:24
+     */
+    public String compare(String img1, String img2) {
         MatchRequest req1 = new MatchRequest(img1, "BASE64");
         MatchRequest req2 = new MatchRequest(img2, "BASE64");
         ArrayList<MatchRequest> requests = new ArrayList();
@@ -46,32 +65,58 @@ public class AiFaceTemplate implements InitializingBean {
         return res.toString(2);
     }
 
-    protected String checkFace(String base64FaceImg) {
+    /**
+     *
+     * 人脸对比，返回相似度
+     * @param img1: 图片流
+     * @param  img2 图片流
+     * @author xiejiarong
+     * @date 2020年06月03日 9:25
+     */
+    public String compare(MultipartFile img1,MultipartFile img2){
+        String[] imgs=stream2Base64(img1,img2);
+        return this.compare(imgs[0],imgs[1]);
+    }
+
+    /**
+     *
+     *人脸检测
+     * @param base64FaceImg:  人脸图片base64
+     * @return String
+     * @author xiejiarong
+     * @date 2020年06月04日 18:32
+     */
+    public String checkFace(String base64FaceImg) {
         HashMap<String, String> options = new HashMap();
         options.put("face_field", "age");
         options.put("liveness_control", "LOW");
         return this.aipFace.detect(base64FaceImg, "BASE64", options).toString(2);
     }
 
-    protected String stream2Base64(MultipartFile file) throws Exception {
-        InputStream inputStream = file.getInputStream();
-        byte[] strByte = new byte[inputStream.available()];
-        inputStream.read(strByte);
+    public String checkFace(MultipartFile img) {
+       String imgBase64=this.stream2Base64(img);
+       return this.checkFace(imgBase64);
+    }
+
+    protected java.lang.String stream2Base64(MultipartFile file) {
+        InputStream inputStream=null;
+        byte[] strByte=null;
+        try {
+            inputStream = file.getInputStream();
+            strByte = new byte[inputStream.available()];
+            inputStream.read(strByte);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return Base64Encoder.encode(strByte);
     }
 
-    protected  String[] stream2Base64(MultipartFile file, MultipartFile file2) throws Exception {
-        InputStream inputStream1 = file.getInputStream();
-        InputStream inputStream2 = file2.getInputStream();
-        byte[] strByte1 = new byte[inputStream1.available()];
-        byte[] strByte2 = new byte[inputStream2.available()];
-        inputStream1.read(strByte1);
-        inputStream2.read(strByte2);
-        String[] res = new String[]{Base64Encoder.encode(strByte1), Base64Encoder.encode(strByte2)};
-        return res;
+    protected  String[] stream2Base64(MultipartFile ... files){
+        List<MultipartFile> list=Arrays.asList(files);
+        return list.stream().map(this::stream2Base64).collect(Collectors.toList()).toArray(new String[files.length]);
     }
 
-    protected void checkAip() throws ApiException {
+    public void checkAip() throws ApiException {
         if (this.aipFace == null) {
             throw new ApiException(ResultEnum.NOT_INITIALIZING);
         }
