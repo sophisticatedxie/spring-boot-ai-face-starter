@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  store.sophi.xjr.model.AiFaceModel
+  store.sophi.xjr.model.AiFaceModel,\
+  store.sophi.xjr.handler.GlobalExceptionResolver

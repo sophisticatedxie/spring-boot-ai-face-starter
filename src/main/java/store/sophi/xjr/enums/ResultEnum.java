@@ -1,8 +1,5 @@
 package store.sophi.xjr.enums;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * @program: spring-boot-ai-face-starter
  * @description: 百度错误码结果枚举
@@ -12,7 +9,7 @@ import lombok.Setter;
 
 public enum ResultEnum {
 
-    SUCCESS(0,"调用成功","SUCCESS"),
+    SUCCESS(0,"成功","SUCCESS"),
 
     UNKNOWN_ERROES(1,"服务器内部错误，请再次请求","Unknown error"),
 
