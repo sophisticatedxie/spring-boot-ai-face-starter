@@ -21,7 +21,7 @@
  <dependency>
      <groupId>store.sophi.xjr</groupId>
      <artifactId>spring-boot-ai-face-starter</artifactId>
-     <version>1.0.0.RELEASE</version>
+     <version>1.0.2.RELEASE</version>
 </dependency>
 ```
    3.SpringBoot启动类上标注@EnableAiFace注解，可通过此注解开关人脸组件功能。
