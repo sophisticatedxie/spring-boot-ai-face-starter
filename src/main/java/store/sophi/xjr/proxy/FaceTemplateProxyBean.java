@@ -27,7 +27,6 @@ public class FaceTemplateProxyBean<T extends  AiFaceTemplate> implements Factory
     @Override
     public T getObject() throws Exception {
         AiFaceTemplate template=applicationContext.getAutowireCapableBeanFactory().createBean(proxyTarget);
-        template.init();
         FaceTemplateInterceptor methodInterceptor=new FaceTemplateInterceptor();
         methodInterceptor.setBaseTemplate(template);
         return (T) FaceTemplateInterceptor.createProxyObj(methodInterceptor,proxyTarget);

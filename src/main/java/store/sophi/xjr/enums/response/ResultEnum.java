@@ -1,4 +1,4 @@
-package store.sophi.xjr.enums;
+package store.sophi.xjr.enums.response;
 
 /**
  * @program: spring-boot-ai-face-starter
@@ -225,7 +225,7 @@ public enum ResultEnum {
     }
 
     public static ResultEnum getByCode(int code){
-        ResultEnum[] enmus=ResultEnum.values();
+        ResultEnum[] enmus= ResultEnum.values();
         for (int i = 0; i <enmus.length ; i++) {
             if (enmus[i].getCode()==code){
                 return enmus[i];

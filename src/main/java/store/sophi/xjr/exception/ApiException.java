@@ -3,7 +3,8 @@ package store.sophi.xjr.exception;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import store.sophi.xjr.enums.ResultEnum;
+import store.sophi.xjr.enums.response.ResultEnum;
+
 
 /**
  * @program: spring-boot-ai-face-starter

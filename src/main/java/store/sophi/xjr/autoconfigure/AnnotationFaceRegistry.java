@@ -38,7 +38,6 @@ public class AnnotationFaceRegistry implements ImportBeanDefinitionRegistrar, En
     public void registerBeanDefinitions(AnnotationMetadata annotationMetadata, BeanDefinitionRegistry beanDefinitionRegistry) {
         AnnotationAttributes annotationAttributes=AnnotationAttributes.fromMap(annotationMetadata.getAnnotationAttributes(EnableAiFace.class.getName()));
         if (!annotationAttributes.getBoolean("open")){
-            beanDefinitionRegistry.removeBeanDefinition("aipFace");
             log.warn("人脸识别组件已注销");
             return;
         }

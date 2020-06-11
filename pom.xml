@@ -10,7 +10,7 @@
     </parent>
     <groupId>store.sophi.xjr</groupId>
     <artifactId>spring-boot-ai-face-starter</artifactId>
-    <version>1.0.2.RELEASE</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -31,6 +31,11 @@
         </repository>
     </distributionManagement>
     <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>29.0-jre</version>
+        </dependency>
         <!--阿里巴巴json-->
         <dependency>
             <groupId>com.alibaba</groupId>

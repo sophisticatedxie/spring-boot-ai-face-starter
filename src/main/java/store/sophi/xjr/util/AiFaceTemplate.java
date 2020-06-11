@@ -3,20 +3,27 @@ package store.sophi.xjr.util;
 import cn.hutool.core.codec.Base64Encoder;
 import com.baidu.aip.face.AipFace;
 import com.baidu.aip.face.MatchRequest;
+import com.google.common.base.Joiner;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import store.sophi.xjr.enums.ResultEnum;
+import store.sophi.xjr.enums.base.ImageTypeEnum;
+import store.sophi.xjr.enums.base.LivenessControlEnum;
+import store.sophi.xjr.enums.check.FaceFieldEnum;
+import store.sophi.xjr.enums.check.FaceNumEnum;
+import store.sophi.xjr.enums.check.FaceTypeEnum;
+import store.sophi.xjr.enums.response.ResultEnum;
 import store.sophi.xjr.exception.ApiException;
+import store.sophi.xjr.model.RequestMap;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,14 +45,8 @@ public class AiFaceTemplate implements InitializingBean {
     )
     protected AipFace aipFace;
 
-    protected final String IMAGE_TYPE = "BASE64";
 
-    protected  final HashMap<String, String> ADD_USER_OPTIONS = new HashMap<String, String>(4);
-
-    protected  final HashMap<String, String> SEARCH_USER_OPTIONS = new HashMap<String, String>(3);
-
-    protected  final HashMap<String, String> CHECK_USER_OPTIONS = new HashMap<String, String>(4);
-
+    protected final ThreadLocal<RequestMap> requestMap=ThreadLocal.<RequestMap>withInitial(RequestMap::new);
 
     /**
      *
@@ -81,24 +82,42 @@ public class AiFaceTemplate implements InitializingBean {
     /**
      *
      *人脸检测
-     * @param base64FaceImg:  人脸图片base64
+     * @param img:  人脸图片
      * @return String
      * @author xiejiarong
      * @date 2020年06月04日 18:32
      */
-    public String checkFace(String base64FaceImg) {
-        HashMap<String, String> options = new HashMap();
-        options.put("face_field", "age");
-        options.put("liveness_control", "LOW");
-        return this.aipFace.detect(base64FaceImg, "BASE64", options).toString(2);
+    private String checkFace(String img,ImageTypeEnum imageType) {
+        return this.aipFace.detect(img, imageType.getValue(), requestMap.get()).toString(2);
     }
 
-    public String checkFace(MultipartFile img) {
-       String imgBase64=this.stream2Base64(img);
-       return this.checkFace(imgBase64);
+    /**
+     *
+     * @description 根据图片文件流检测人脸
+     * @param img: 图片流
+     * @return String 检测结果json字符串
+     * @author xiejiarong
+     * @date 2020年06月08日 15:59
+     */
+    public String checkFace(MultipartFile img, ImageTypeEnum imageType, FaceNumEnum faceNum, FaceTypeEnum faceType, LivenessControlEnum livenessControl, FaceFieldEnum... fieldEnums) {
+        String imgBase64=this.stream2Base64(img);
+        List<FaceFieldEnum> requestList=null;
+        String requestStr="";
+        if (fieldEnums!=null){
+            requestList=Arrays.asList(fieldEnums);
+            requestStr=Joiner.on(",").join(requestList);
+        }
+        requestMap.get()
+        .lambdaCombine(faceNum,FaceNumEnum::getKey,FaceNumEnum::getValue)
+        .lambdaCombine(faceType,FaceTypeEnum::getKey,FaceTypeEnum::getCode)
+        .lambdaCombine(livenessControl,LivenessControlEnum::getKey,LivenessControlEnum::getCode);
+        if (!StringUtils.isEmpty(requestStr)){
+            requestMap.get().put("face_field",requestStr);
+        }
+       return this.checkFace(imgBase64,imageType);
     }
 
-    protected java.lang.String stream2Base64(MultipartFile file) {
+    private String stream2Base64(MultipartFile file) {
         InputStream inputStream=null;
         byte[] strByte=null;
         try {
@@ -111,7 +130,7 @@ public class AiFaceTemplate implements InitializingBean {
         return Base64Encoder.encode(strByte);
     }
 
-    protected  String[] stream2Base64(MultipartFile ... files){
+    private  String[] stream2Base64(MultipartFile ... files){
         List<MultipartFile> list=Arrays.asList(files);
         return list.stream().map(this::stream2Base64).collect(Collectors.toList()).toArray(new String[files.length]);
     }
@@ -124,20 +143,17 @@ public class AiFaceTemplate implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        init();
         log.info("人脸操作工具类初始化结束,注入人脸客户端信息：{}", this.aipFace);
     }
 
-    public void init(){
-        SEARCH_USER_OPTIONS.put("quality_control", "LOW");
-        SEARCH_USER_OPTIONS.put("liveness_control", "NONE");
-        SEARCH_USER_OPTIONS.put("match_threshold", "85");
-        ADD_USER_OPTIONS.put("quality_control", "LOW");
-        ADD_USER_OPTIONS.put("liveness_control", "NONE");
-        ADD_USER_OPTIONS.put("action_type", "REPLACE");
-        CHECK_USER_OPTIONS.put("quality_control", "LOW");
-        CHECK_USER_OPTIONS.put("liveness_control", "NONE");
-        CHECK_USER_OPTIONS.put("match_threshold", "85");
+    /**
+     *
+     * @description 移除请求map，防止线程池并发问题
+     * @author xiejiarong
+     * @date 2020年06月08日 17:03
+     */
+    public final void removeRequestMap(){
+        this.requestMap.remove();
     }
 
 

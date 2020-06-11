@@ -7,7 +7,7 @@ import lombok.Setter;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.cglib.proxy.MethodProxy;
-import store.sophi.xjr.enums.ResultEnum;
+import store.sophi.xjr.enums.response.ResultEnum;
 import store.sophi.xjr.exception.ApiException;
 import store.sophi.xjr.util.AiFaceTemplate;
 
@@ -40,6 +40,7 @@ public class FaceTemplateInterceptor<T extends AiFaceTemplate> implements Method
         }catch (InvocationTargetException ex){
             throw  new Exception(ex.getMessage());
         }
+        baseTemplate.removeRequestMap();
         return result;
     }
 
