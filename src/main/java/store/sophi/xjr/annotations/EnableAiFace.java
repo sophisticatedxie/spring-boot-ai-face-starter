@@ -2,7 +2,6 @@ package store.sophi.xjr.annotations;
 
 import org.springframework.context.annotation.Import;
 import store.sophi.xjr.autoconfigure.AnnotationFaceRegistry;
-import store.sophi.xjr.model.AiFaceModel;
 import store.sophi.xjr.util.AiFaceTemplate;
 
 import java.lang.annotation.*;
@@ -23,6 +22,12 @@ public @interface EnableAiFace {
     boolean open() default true;
 
     Class<? extends AiFaceTemplate> executor() default AiFaceTemplate.class;
+
+    String appId() default "";
+
+    String apiKey() default "";
+
+    String secretKey() default "";
 
 
 

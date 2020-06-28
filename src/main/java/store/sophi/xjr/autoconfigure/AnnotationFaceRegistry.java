@@ -38,14 +38,21 @@ public class AnnotationFaceRegistry implements ImportBeanDefinitionRegistrar, En
     public void registerBeanDefinitions(AnnotationMetadata annotationMetadata, BeanDefinitionRegistry beanDefinitionRegistry) {
         AnnotationAttributes annotationAttributes=AnnotationAttributes.fromMap(annotationMetadata.getAnnotationAttributes(EnableAiFace.class.getName()));
         if (!annotationAttributes.getBoolean("open")){
-            log.warn("人脸识别组件已注销");
+            log.warn("人脸识别功能没有开启");
             return;
         }
-        String appId=environment.getProperty("ai.face.appId");
-        String apiKey=environment.getProperty("ai.face.apiKey");
-        String secretKey=environment.getProperty("ai.face.secretKey");
-        if (StringUtils.isEmpty(appId) || StringUtils.isEmpty(apiKey) ||StringUtils.isEmpty(secretKey)){
-            throw new Exception("配置文件中没有配置百度开发者平台的账号密钥!!");
+        String appId=annotationAttributes.getString("appId");
+        String apiKey=annotationAttributes.getString("apiKey");
+        String secretKey=annotationAttributes.getString("secretKey");
+        if (StringUtils.isEmpty(appId)
+        || StringUtils.isEmpty(apiKey)
+        || StringUtils.isEmpty(secretKey)){
+             appId=environment.getProperty("ai.face.appId");
+             apiKey=environment.getProperty("ai.face.apiKey");
+             secretKey=environment.getProperty("ai.face.secretKey");
+            if (StringUtils.isEmpty(appId) || StringUtils.isEmpty(apiKey) ||StringUtils.isEmpty(secretKey)){
+                throw new Exception("配置文件中没有配置百度开发者平台的账号密钥!!");
+            }
         }
         BeanDefinition beanDefinition=BeanDefinitionBuilder.genericBeanDefinition(AipFace.class).getBeanDefinition();
         beanDefinition.setScope("singleton");

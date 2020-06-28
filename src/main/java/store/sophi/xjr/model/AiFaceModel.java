@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "ai.face")
 @Configuration("aiFaceModel")
 @Slf4j
-public class AiFaceModel implements InitializingBean {
+public class AiFaceModel  {
 
     private String appId;
 
@@ -27,9 +27,4 @@ public class AiFaceModel implements InitializingBean {
 
     private String secretKey;
 
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        log.info("百度开发者平台appId:{},\n百度开发者平台apiKey:{},\n百度开发者平台secretKey:{}",appId,apiKey,secretKey);
-    }
 }
